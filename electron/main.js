@@ -1,7 +1,10 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow } = require('electron');
 const { autoUpdater } = require('electron-updater');
+const log = require('electron-log');
 const path = require('path');
-const fs = require('fs');
+
+autoUpdater.logger = log;
+autoUpdater.logger.transports.file.level = 'info';
 
 function createWindow() {
   const win = new BrowserWindow({
@@ -15,8 +18,9 @@ function createWindow() {
 
   win.loadFile(path.join(__dirname, '../game/index.html'));
 
-  // CHECK UPDATE AFTER WINDOW READY
-  autoUpdater.checkForUpdatesAndNotify();
+  win.once('ready-to-show', () => {
+    autoUpdater.checkForUpdatesAndNotify();
+  });
 }
 
 app.whenReady().then(createWindow);
