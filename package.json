@@ -1,6 +1,6 @@
 {
   "name": "phaser-electron-game",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "Phaser Electron Game",
   "author": "WildanHanifz",
   "main": "electron/main.js",
