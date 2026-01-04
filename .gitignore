@@ -1,18 +1,38 @@
-# dependencies
+# =========================
+# Dependencies
+# =========================
 node_modules/
 
-# build output
+# =========================
+# Build output (LOCAL ONLY)
+# =========================
 dist/
 win-unpacked/
 
-# electron cache
-*.exe
+# =========================
+# Electron artifacts (ignore locally)
+# =========================
 *.blockmap
-*.yml
 
-# logs
+# =========================
+# Logs
+# =========================
 npm-debug.log*
 yarn-debug.log*
 
-# system
+# =========================
+# System
+# =========================
 .DS_Store
+
+# =========================
+# ALLOW THESE (IMPORTANT)
+# =========================
+
+# GitHub Actions
+!.github/
+!.github/workflows/
+!.github/workflows/*.yml
+
+# Auto updater metadata
+!latest.yml
