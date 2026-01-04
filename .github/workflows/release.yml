@@ -3,22 +3,26 @@ name: Build & Release Electron App
 on:
   push:
     tags:
-      - "v*.*.*"
+      - 'v*'
 
 jobs:
-  release:
+  build:
     runs-on: windows-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - run: npm install
+      - name: Install deps
+        run: npm ci
 
-      - run: npm run build
+      - name: Build & Publish
+        run: npm run build
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CSC_IDENTITY_AUTO_DISCOVERY: false

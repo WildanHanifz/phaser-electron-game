@@ -1,25 +1,28 @@
-import VersionSystem from '../systems/VersionSystem.js';
-import PatchSystem from '../systems/PatchSystem.js';
-import SaveSystem from '../systems/SaveSystem.js';
-
 export default class BootScene extends Phaser.Scene {
   constructor() {
     super('BootScene');
   }
 
-  async create() {
-    this.add.text(40, 40, 'Checking version...', { fill: '#fff' });
+  create() {
+    this.add.text(40, 40, 'Checking version...', {
+      fill: '#fff',
+      fontSize: '24px'
+    });
 
-    await SaveSystem.load();
+    let finished = false;
 
-    const versionInfo = await VersionSystem.check();
+    const proceed = () => {
+      if (finished) return;
+      finished = true;
+      this.scene.start('MenuScene');
+    };
 
-    if (versionInfo.updateAvailable) {
-      this.add.text(40, 80, 'Applying patch...', { fill: '#0f0' });
-      await PatchSystem.apply(versionInfo.patch);
+    // 🔥 Tunggu updater
+    if (window.updater) {
+      window.updater.onDone(proceed);
     }
 
-    // ⬇⬇⬇ INI KUNCI
-    this.scene.start('MenuScene');
+    // 🔥 HARD FAILSAFE (wajib)
+    this.time.delayedCall(3500, proceed);
   }
 }
