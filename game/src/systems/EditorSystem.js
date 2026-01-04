@@ -39,6 +39,7 @@ export default class EditorSystem {
       obj.type = 'box';
 
       this.objects.push(obj);
+      this.scene.bbox?.track(obj);
     });
 
     // Drag object
@@ -52,6 +53,7 @@ export default class EditorSystem {
       if (!this.enabled) return;
 
       if (pointer.rightButtonDown()) {
+        this.scene.bbox?.untrack(gameObject);
         gameObject.destroy();
         this.objects = this.objects.filter(o => o !== gameObject);
       }
@@ -96,13 +98,17 @@ export default class EditorSystem {
       obj.setInteractive({ draggable: true });
       obj.type = item.type;
       this.objects.push(obj);
+      this.scene.bbox?.track(obj);
     });
 
     console.log('[Editor] scene loaded');
   }
 
   clear() {
-    this.objects.forEach(o => o.destroy());
+    this.objects.forEach(o => {
+        this.scene.bbox?.untrack(o);
+        o.destroy();
+    });
     this.objects = [];
   }
 }

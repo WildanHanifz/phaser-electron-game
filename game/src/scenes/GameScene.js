@@ -1,6 +1,8 @@
 import gameState from '../systems/GameState.js';
 import SaveSystem from '../systems/SaveSystem.js';
 import EditorSystem from '../systems/EditorSystem.js';
+import BoundingBoxSystem from '../systems/BoundingBoxSystem.js';
+
 
 export default class GameScene extends Phaser.Scene {
   constructor() {
@@ -43,15 +45,21 @@ export default class GameScene extends Phaser.Scene {
 
     if (DEV_MODE) {
       this.editor = new EditorSystem(this);
+      this.bbox = new BoundingBoxSystem(this);
       this.editor.registerInput();
 
       this.input.keyboard.on('keydown-E', () => {
         this.editor.toggle();
       });
 
+      this.input.keyboard.on('keydown-B', () => {
+        this.bbox.toggle();
+      });
+
       this.add.text(10, 10, 'DEV MODE | Press E to toggle editor', {
         fontSize: '12px',
         fill: '#ffff00'
+
       });
     }
 
@@ -75,5 +83,10 @@ export default class GameScene extends Phaser.Scene {
     this.time.delayedCall(1500, () => {
       msg.destroy();
     });
+  }
+
+  update() {
+    // update bounding box setiap frame (DEV MODE only)
+    this.bbox?.update();
   }
 }
