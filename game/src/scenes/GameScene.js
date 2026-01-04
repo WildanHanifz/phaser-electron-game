@@ -1,5 +1,6 @@
 import gameState from '../systems/GameState.js';
 import SaveSystem from '../systems/SaveSystem.js';
+import EditorSystem from '../systems/EditorSystem.js';
 
 export default class GameScene extends Phaser.Scene {
   constructor() {
@@ -7,6 +8,9 @@ export default class GameScene extends Phaser.Scene {
   }
 
   create() {
+    // ======================
+    // GAMEPLAY UI
+    // ======================
     this.scoreText = this.add.text(100, 100, '', {
       fontSize: '32px',
       fill: '#00ffcc'
@@ -15,7 +19,7 @@ export default class GameScene extends Phaser.Scene {
     this.updateUI();
 
     const addBtn = this.add.text(100, 180, '[ ADD SCORE ]', {
-      fill: '#fff'
+      fill: '#ffffff'
     }).setInteractive();
 
     addBtn.on('pointerdown', () => {
@@ -29,9 +33,31 @@ export default class GameScene extends Phaser.Scene {
 
     saveBtn.on('pointerdown', async () => {
       await SaveSystem.save();
-      this.add.text(100, 270, 'SAVED ✔', { fill: '#0f0' });
+      this.showTempMessage('SAVED ✔');
     });
 
+    // ======================
+    // DEV MODE EDITOR
+    // ======================
+    const DEV_MODE = !window.api; // browser / npm start
+
+    if (DEV_MODE) {
+      this.editor = new EditorSystem(this);
+      this.editor.registerInput();
+
+      this.input.keyboard.on('keydown-E', () => {
+        this.editor.toggle();
+      });
+
+      this.add.text(10, 10, 'DEV MODE | Press E to toggle editor', {
+        fontSize: '12px',
+        fill: '#ffff00'
+      });
+    }
+
+    // ======================
+    // EXIT TO MENU
+    // ======================
     this.input.keyboard.on('keydown-ESC', () => {
       this.scene.start('MenuScene');
     });
@@ -39,5 +65,15 @@ export default class GameScene extends Phaser.Scene {
 
   updateUI() {
     this.scoreText.setText(`Score: ${gameState.player.score}`);
+  }
+
+  showTempMessage(text) {
+    const msg = this.add.text(100, 270, text, {
+      fill: '#0f0'
+    });
+
+    this.time.delayedCall(1500, () => {
+      msg.destroy();
+    });
   }
 }
