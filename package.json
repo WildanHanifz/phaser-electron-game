@@ -11,11 +11,14 @@
     "productName": "Phaser Electron Game",
     "win": {
       "target": "nsis",
-      "sign": false
+      "sign": false,
+      "verifyUpdateCodeSignature": false
     },
     "publish": [
       {
-        "provider": "github"
+        "provider": "github",
+        "owner": "WildanHanifz",
+        "repo": "phaser-electron-game"
       }
     ]
   },
