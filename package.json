@@ -1,22 +1,21 @@
 {
   "name": "phaser-electron-game",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "main": "electron/main.js",
   "scripts": {
     "start": "electron .",
-    "build": "electron-builder --win"
+    "build": "electron-builder --publish always"
   },
   "build": {
     "appId": "com.wildan.phaserelectron",
     "productName": "Phaser Electron Game",
     "win": {
-      "target": "portable"
+      "target": "nsis",
+      "sign": false
     },
     "publish": [
       {
-        "provider": "github",
-        "owner": "WildanHanifz",
-        "repo": "phaser-electron-game"
+        "provider": "github"
       }
     ]
   },
