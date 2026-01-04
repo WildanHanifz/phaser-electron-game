@@ -12,6 +12,8 @@ export default class EditorSystem {
 
   disable() {
     this.enabled = false;
+    this.scene.resizeGizmo?.clear();
+    this.scene.bbox?.hide();
     console.log('[Editor] disabled');
   }
 
@@ -22,93 +24,79 @@ export default class EditorSystem {
   registerInput() {
     const scene = this.scene;
 
-    // Spawn object
-    scene.input.on('pointerdown', (pointer) => {
+    // =====================
+    // POINTER DOWN (SATU-SATUNYA)
+    // =====================
+    scene.input.on('pointerdown', (pointer, targets) => {
       if (!this.enabled) return;
-      if (pointer.rightButtonDown()) return;
 
-      const obj = scene.add.rectangle(
+      // filter hanya object editor (BUKAN gizmo / UI)
+      const editorTarget = targets.find(t => t.getData?.('editorObject'));
+
+      // =====================
+      // RIGHT CLICK → DELETE
+      // =====================
+      if (pointer.rightButtonDown()) {
+        if (editorTarget) {
+          this.scene.resizeGizmo?.clear();
+          this.scene.bbox?.hide();
+
+          editorTarget.destroy();
+          this.objects = this.objects.filter(o => o !== editorTarget);
+        }
+        return;
+      }
+
+      // =====================
+      // LEFT CLICK → SELECT
+      // =====================
+      if (editorTarget) {
+        this.scene.resizeGizmo.enable();
+        this.scene.resizeGizmo.attach(editorTarget);
+        return;
+      }
+
+      // =====================
+      // LEFT CLICK EMPTY → SPAWN IMAGE
+      // =====================
+      const obj = scene.add.image(
         pointer.worldX,
         pointer.worldY,
-        50,
-        50,
-        0xff0000
+        'test-img'
       );
 
+      obj.setOrigin(0.5);
+      obj.setDisplaySize(100, 100);
+      obj.setDepth(10);
       obj.setInteractive({ draggable: true });
-      obj.type = 'box';
+
+      // 🔥 PENANDA WAJIB
+      obj.setData('editorObject', true);
 
       this.objects.push(obj);
-      this.scene.bbox?.track(obj);
     });
 
-    // Drag object
-    scene.input.on('drag', (_, gameObject, dragX, dragY) => {
+    // =====================
+    // HOVER → BOUNDING BOX
+    // =====================
+    scene.input.on('gameobjectover', (_, obj) => {
       if (!this.enabled) return;
-      gameObject.setPosition(dragX, dragY);
+      if (!obj.getData?.('editorObject')) return;
+      this.scene.bbox?.show(obj);
     });
 
-    // Delete object (right click)
-    scene.input.on('gameobjectdown', (pointer, gameObject) => {
+    scene.input.on('gameobjectout', () => {
       if (!this.enabled) return;
-
-      if (pointer.rightButtonDown()) {
-        this.scene.bbox?.untrack(gameObject);
-        gameObject.destroy();
-        this.objects = this.objects.filter(o => o !== gameObject);
-      }
+      this.scene.bbox?.hide();
     });
 
-    // Keyboard shortcuts
-    scene.input.keyboard.on('keydown-S', (e) => {
-      if (this.enabled && e.ctrlKey) this.save();
+    // =====================
+    // DRAG OBJECT
+    // =====================
+    scene.input.on('drag', (_, obj, x, y) => {
+      if (!this.enabled) return;
+      if (!obj.getData?.('editorObject')) return;
+      obj.setPosition(x, y);
     });
-
-    scene.input.keyboard.on('keydown-L', (e) => {
-      if (this.enabled && e.ctrlKey) this.load();
-    });
-  }
-
-  save() {
-    const data = this.objects.map(o => ({
-      type: o.type,
-      x: o.x,
-      y: o.y
-    }));
-
-    localStorage.setItem('editor-level', JSON.stringify(data));
-    console.log('[Editor] scene saved');
-  }
-
-  load() {
-    const raw = localStorage.getItem('editor-level');
-    if (!raw) return;
-
-    this.clear();
-
-    const data = JSON.parse(raw);
-    data.forEach(item => {
-      const obj = this.scene.add.rectangle(
-        item.x,
-        item.y,
-        50,
-        50,
-        0xff0000
-      );
-      obj.setInteractive({ draggable: true });
-      obj.type = item.type;
-      this.objects.push(obj);
-      this.scene.bbox?.track(obj);
-    });
-
-    console.log('[Editor] scene loaded');
-  }
-
-  clear() {
-    this.objects.forEach(o => {
-        this.scene.bbox?.untrack(o);
-        o.destroy();
-    });
-    this.objects = [];
   }
 }

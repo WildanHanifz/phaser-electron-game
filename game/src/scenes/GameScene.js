@@ -2,12 +2,18 @@ import gameState from '../systems/GameState.js';
 import SaveSystem from '../systems/SaveSystem.js';
 import EditorSystem from '../systems/EditorSystem.js';
 import BoundingBoxSystem from '../systems/BoundingBoxSystem.js';
+import ResizeGizmoSystem from '../systems/ResizeGizmoSystem.js';
 
 
 export default class GameScene extends Phaser.Scene {
   constructor() {
     super('GameScene');
   }
+
+  preload() {
+    this.load.image('test-img', 'assets/test.png');
+  }
+
 
   create() {
     // ======================
@@ -46,15 +52,13 @@ export default class GameScene extends Phaser.Scene {
     if (DEV_MODE) {
       this.editor = new EditorSystem(this);
       this.bbox = new BoundingBoxSystem(this);
+      this.resizeGizmo = new ResizeGizmoSystem(this);
       this.editor.registerInput();
 
       this.input.keyboard.on('keydown-E', () => {
         this.editor.toggle();
       });
 
-      this.input.keyboard.on('keydown-B', () => {
-        this.bbox.toggle();
-      });
 
       this.add.text(10, 10, 'DEV MODE | Press E to toggle editor', {
         fontSize: '12px',
@@ -88,5 +92,6 @@ export default class GameScene extends Phaser.Scene {
   update() {
     // update bounding box setiap frame (DEV MODE only)
     this.bbox?.update();
+    this.resizeGizmo?.update();
   }
 }
