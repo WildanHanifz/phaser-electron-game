@@ -4,8 +4,9 @@
   "main": "electron/main.js",
   "scripts": {
     "start": "electron .",
-    "build": "electron-builder"
+    "build": "electron-builder --win --x64 --config.win.sign=false"
   },
+
   "build": {
     "appId": "com.wildan.phaserelectron",
     "productName": "Phaser Electron Game",
@@ -14,23 +15,8 @@
       "game/**/*",
       "package.json"
     ],
-    "directories": {
-      "buildResources": "assets"
-    },
     "win": {
-      "target": [
-        {
-          "target": "nsis",
-          "arch": ["x64"]
-        }
-      ],
-      "sign": false,
-      "verifyUpdateCodeSignature": false
-    },
-    "nsis": {
-      "oneClick": false,
-      "perMachine": false,
-      "allowToChangeInstallationDirectory": true
+      "target": "nsis"
     },
     "publish": [
       {
@@ -40,6 +26,7 @@
       }
     ]
   },
+
   "devDependencies": {
     "electron": "^39.2.7",
     "electron-builder": "^24.13.3"
